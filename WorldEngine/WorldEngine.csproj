@@ -1,15 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="MathNet.Spatial" Version="0.6.0" />
-    <PackageReference Include="MathNet.Symbolics" Version="0.24.0" />
+    <PackageReference Include="MathNet.Symbolics" Version="0.25.0" />
     <PackageReference Include="Wolfram.NETLink" Version="1.7.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Wolfram.NETLink">
+      <HintPath>C:\Program Files\Wolfram Research\Wolfram Engine\14.2\SystemFiles\Links\NETLink\Wolfram.NETLink.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

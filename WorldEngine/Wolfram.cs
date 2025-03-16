@@ -7,7 +7,7 @@ namespace WorldEngine
 
         public static Expr TranslateToWolframExpr(string expression)
         {
-            string[] mlArgs = { "-linkmode", "launch", "-linkname", "C:\\Program Files\\Wolfram Research\\Wolfram Engine\\13.2\\wolfram.exe" };
+            string[] mlArgs = ["-linkmode", "launch", "-linkname", "C:\\Program Files\\Wolfram Research\\Wolfram Engine\\14.2\\wolfram.exe"];
             // This launches the Mathematica kernel:
             IKernelLink ml = MathLinkFactory.CreateKernelLink(mlArgs);
 
@@ -26,7 +26,7 @@ namespace WorldEngine
 
         public static string ExecuteToOutput(string expression, int pageWidth)
         {
-            string[] mlArgs = { "-linkmode", "launch", "-linkname", "C:\\Program Files\\Wolfram Research\\Wolfram Engine\\13.2\\wolfram.exe" };
+            string[] mlArgs = ["-linkmode", "launch", "-linkname", "C:\\Program Files\\Wolfram Research\\Wolfram Engine\\14.2\\wolfram.exe"];
             // This launches the Mathematica kernel:
             IKernelLink ml = MathLinkFactory.CreateKernelLink(mlArgs);
 
@@ -43,7 +43,7 @@ namespace WorldEngine
 
         public static string ExecuteToInputForm(string expression, int pageWidth)
         {
-            string[] mlArgs = { "-linkmode", "launch", "-linkname", "C:\\Program Files\\Wolfram Research\\Wolfram Engine\\13.2\\wolfram.exe" };
+            string[] mlArgs = ["-linkmode", "launch", "-linkname", "C:\\Program Files\\Wolfram Research\\Wolfram Engine\\14.2\\wolfram.exe"];
             // This launches the Mathematica kernel:
             IKernelLink ml = MathLinkFactory.CreateKernelLink(mlArgs);
 
@@ -60,7 +60,7 @@ namespace WorldEngine
 
         public static string ExecuteStr(string expression)
         {
-            string[] mlArgs = { "-linkmode", "launch", "-linkname", "C:\\Program Files\\Wolfram Research\\Wolfram Engine\\13.2\\wolfram.exe" };
+            string[] mlArgs = ["-linkmode", "launch", "-linkname", "C:\\Program Files\\Wolfram Research\\Wolfram Engine\\14.2\\wolfram.exe"];
             // This launches the Mathematica kernel:
             IKernelLink ml = MathLinkFactory.CreateKernelLink(mlArgs);
 
