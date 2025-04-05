@@ -24,9 +24,9 @@ namespace WorldEngineTest
             Vector3D ans = toSolve.GetFiniteCentralDifferenceApproximation(2, 1e-3);
             Assert.Multiple(() =>
             {
-                Assert.That(Math.Round(ans.X, 1), Is.EqualTo(19.0));
-                Assert.That(Math.Round(ans.Y, 1), Is.EqualTo(266.3));
-                Assert.That(Math.Round(ans.Z, 1), Is.EqualTo(30.7));
+                Assert.That(System.Math.Round(ans.X, 1), Is.EqualTo(19.0));
+                Assert.That(System.Math.Round(ans.Y, 1), Is.EqualTo(266.3));
+                Assert.That(System.Math.Round(ans.Z, 1), Is.EqualTo(30.7));
             });
         }
 
@@ -43,9 +43,9 @@ namespace WorldEngineTest
             Vector3D ans = toSolve.SolveAtTime(2);
             Assert.Multiple(() =>
             {
-                Assert.That(Math.Round(ans.X, 1), Is.EqualTo(19.0));
-                Assert.That(Math.Round(ans.Y, 1), Is.EqualTo(266.3));
-                Assert.That(Math.Round(ans.Z, 1), Is.EqualTo(30.7));
+                Assert.That(System.Math.Round(ans.X, 1), Is.EqualTo(19.0));
+                Assert.That(System.Math.Round(ans.Y, 1), Is.EqualTo(266.3));
+                Assert.That(System.Math.Round(ans.Z, 1), Is.EqualTo(30.7));
             });
         }
 

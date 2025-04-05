@@ -29,7 +29,7 @@ namespace WorldEngineTest
             var ans = A * B;
             Assert.Multiple(() =>
             {
-                Assert.That(ans[0,0], Is.EqualTo(0));
+                Assert.That(ans[0, 0], Is.EqualTo(0));
                 Assert.That(ans[0, 1], Is.EqualTo(1));
                 Assert.That(ans[1, 0], Is.EqualTo(0));
                 Assert.That(ans[1, 1], Is.EqualTo(0));
@@ -128,6 +128,185 @@ namespace WorldEngineTest
 
             var ans = B.DeterminantExpr();
             Assert.That(ans.ToString(), Is.EqualTo(Expr.Parse("0").ToString()));
+        }
+
+        [Test]
+        public void ReducedRowEchelonWithNumber()
+        {
+            Matrix<double> B = new(2, 3);
+            B[0, 0] = 1;
+            B[0, 1] = 2;
+            B[0, 2] = 3;
+            B[1, 0] = 2;
+            B[1, 1] = 4;
+            B[1, 2] = 6;
+
+            var ans = B.ReducedRowEchelonForm();
+            Assert.Multiple(() =>
+            {
+                Assert.That(ans.Rows, Is.EqualTo(2));
+                Assert.That(ans.Cols, Is.EqualTo(3));
+                Assert.That(ans[0, 0], Is.EqualTo(1));
+                Assert.That(ans[0, 1], Is.EqualTo(2));
+                Assert.That(ans[0, 2], Is.EqualTo(3));
+                Assert.That(ans[1, 0], Is.EqualTo(0));
+                Assert.That(ans[1, 1], Is.EqualTo(0));
+                Assert.That(ans[1, 2], Is.EqualTo(0));
+            });
+        }
+
+
+        [Test]
+        public void KernelWithNumber()
+        {
+            Matrix<double> B = new(2, 3);
+            B[0, 0] = 1;
+            B[0, 1] = 2;
+            B[0, 2] = 3;
+            B[1, 0] = 2;
+            B[1, 1] = 4;
+            B[1, 2] = 6;
+
+            var ans = B.Kernel();
+            Assert.Multiple(() =>
+            {
+                Assert.That(ans, Has.Count.EqualTo(2));
+                Assert.That(ans[0][0], Is.EqualTo(-2));
+                Assert.That(ans[0][1], Is.EqualTo(1));
+                Assert.That(ans[0][2], Is.EqualTo(0));
+                Assert.That(ans[1][0], Is.EqualTo(-3));
+                Assert.That(ans[1][1], Is.EqualTo(0));
+                Assert.That(ans[1][2], Is.EqualTo(1));
+            });
+        }
+
+        [Test]
+        public void ImageWithNumber()
+        {
+            Matrix<double> A = new(3, 4);
+            A[0, 0] = 1;
+            A[0, 1] = 2;
+            A[0, 2] = 3;
+            A[0, 3] = 4;
+            A[1, 0] = 1;
+            A[1, 1] = 4;
+            A[1, 2] = 0;
+            A[1, 3] = 2;
+            A[2, 0] = 2;
+            A[2, 1] = 2;
+            A[2, 2] = 9;
+            A[2, 3] = 10;
+
+            var ans = A.ImageBasisColumns();
+            Assert.Multiple(() =>
+            {
+                Assert.That(ans, Has.Count.EqualTo(2));
+                Assert.That(ans[0][0], Is.EqualTo(1));
+                Assert.That(ans[0][1], Is.EqualTo(0));
+                Assert.That(ans[0][2], Is.EqualTo(0));
+                Assert.That(ans[1][0], Is.EqualTo(0));
+                Assert.That(ans[1][1], Is.EqualTo(1));
+                Assert.That(ans[1][2], Is.EqualTo(0));
+            });
+        }
+
+        [Test]
+        public void ReducedRowEchelonWithExpr()
+        {
+            Matrix<Expr> A = new(3, 4);
+            A[0, 0] = Expr.Parse("1");
+            A[0, 1] = Expr.Parse("1");
+            A[0, 2] = Expr.Parse("0");
+            A[0, 3] = Expr.Parse("1");
+            A[1, 0] = Expr.Parse("-1");
+            A[1, 1] = Expr.Parse("3");
+            A[1, 2] = Expr.Parse("2");
+            A[1, 3] = Expr.Parse("1");
+            A[2, 0] = Expr.Parse("4");
+            A[2, 1] = Expr.Parse("0");
+            A[2, 2] = Expr.Parse("-2");
+            A[2, 3] = Expr.Parse("1");
+
+            var ans = A.ReducedRowEchelonFormExpr();
+            Assert.Multiple(() =>
+            {
+                Assert.That(ans.Rows, Is.EqualTo(3));
+                Assert.That(ans.Cols, Is.EqualTo(4));
+
+                Assert.That(ans[0, 0].ToString(), Is.EqualTo("1"));
+                Assert.That(ans[0, 1].ToString(), Is.EqualTo("0"));
+                Assert.That(ans[0, 2].ToString(), Is.EqualTo("-1/2"));
+                Assert.That(ans[0, 3].ToString(), Is.EqualTo("0"));
+
+                Assert.That(ans[1, 0].ToString(), Is.EqualTo("0"));
+                Assert.That(ans[1, 1].ToString(), Is.EqualTo("1"));
+                Assert.That(ans[1, 2].ToString(), Is.EqualTo("1/2"));
+                Assert.That(ans[1, 3].ToString(), Is.EqualTo("0"));
+
+                Assert.That(ans[2, 0].ToString(), Is.EqualTo("0"));
+                Assert.That(ans[2, 1].ToString(), Is.EqualTo("0"));
+                Assert.That(ans[2, 2].ToString(), Is.EqualTo("0"));
+                Assert.That(ans[2, 3].ToString(), Is.EqualTo("1"));
+            });
+        }
+
+        [Test]
+        public void KernelWithExpr()
+        {
+            Matrix<Expr> A = new(3, 4);
+            A[0, 0] = Expr.Parse("1");
+            A[0, 1] = Expr.Parse("1");
+            A[0, 2] = Expr.Parse("0");
+            A[0, 3] = Expr.Parse("1");
+            A[1, 0] = Expr.Parse("-1");
+            A[1, 1] = Expr.Parse("3");
+            A[1, 2] = Expr.Parse("2");
+            A[1, 3] = Expr.Parse("1");
+            A[2, 0] = Expr.Parse("4");
+            A[2, 1] = Expr.Parse("0");
+            A[2, 2] = Expr.Parse("-2");
+            A[2, 3] = Expr.Parse("1");
+
+            var ans = A.KernelExpr();
+            Assert.Multiple(() =>
+            {
+                Assert.That(ans, Has.Count.EqualTo(1));
+
+                Assert.That(ans[0][0].ToString(), Is.EqualTo("1/2"));
+                Assert.That(ans[0][1].ToString(), Is.EqualTo("-1/2"));
+                Assert.That(ans[0][2].ToString(), Is.EqualTo("1"));
+                Assert.That(ans[0][3].ToString(), Is.EqualTo("0"));
+            });
+        }
+
+        [Test]
+        public void ImageWithExpr()
+        {
+            Matrix<Expr> A = new(3, 4);
+            A[0, 0] = 1;
+            A[0, 1] = 2;
+            A[0, 2] = 3;
+            A[0, 3] = 4;
+            A[1, 0] = 1;
+            A[1, 1] = 4;
+            A[1, 2] = 0;
+            A[1, 3] = 2;
+            A[2, 0] = 2;
+            A[2, 1] = 2;
+            A[2, 2] = 9;
+            A[2, 3] = 10;
+
+            var ans = A.ImageBasisColumnsExpr();
+            Assert.Multiple(() =>
+            {
+                Assert.That(ans, Has.Count.EqualTo(2));
+                Assert.That(ans[0][0].ToString(), Is.EqualTo("1"));
+                Assert.That(ans[0][1].ToString(), Is.EqualTo("0"));
+                Assert.That(ans[0][2].ToString(), Is.EqualTo("0"));
+                Assert.That(ans[1][0].ToString(), Is.EqualTo("0"));
+                Assert.That(ans[1][1].ToString(), Is.EqualTo("1"));
+                Assert.That(ans[1][2].ToString(), Is.EqualTo("0"));
+            });
         }
     }
 }

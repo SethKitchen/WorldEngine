@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using Wolfram.NETLink;
 using Expr = MathNet.Symbolics.SymbolicExpression;
 
 namespace WorldEngine
@@ -181,7 +182,7 @@ namespace WorldEngine
             {
                 for (int j = 0; j < matrix.Cols; j++)
                 {
-                    if (matrix[i,j] == null)
+                    if (matrix[i, j] == null)
                     {
                         matrix[i, j] = (T)Expr.Zero;
                     }
@@ -208,10 +209,10 @@ namespace WorldEngine
             for (int i = 0; i < n; i++)
             {
                 dynamic pivot = augmented[i, i];
-                if (pivot == Expr.Zero)
+                if (pivot.ToString() == Expr.Zero.ToString())
                 {
                     int swapRow = i + 1;
-                    while (swapRow < n && augmented[swapRow, i] == Expr.Zero)
+                    while (swapRow < n && augmented[swapRow, i].ToString() == Expr.Zero.ToString())
                     {
                         swapRow++;
                     }
@@ -333,12 +334,12 @@ namespace WorldEngine
             {
                 dynamic pivot = mat[i, i];
                 int pivotRow = i;
-                if (pivot == Expr.Zero)
+                if (pivot.ToString() == Expr.Zero.ToString())
                 {
                     bool found = false;
                     for (int k = i + 1; k < n; k++)
                     {
-                        if (mat[k, i] != Expr.Zero)
+                        if (mat[k, i].ToString() != Expr.Zero.ToString())
                         {
                             pivot = mat[k, i];
                             pivotRow = k;
@@ -371,6 +372,272 @@ namespace WorldEngine
                 det = (det as dynamic) * ((Expr.Zero as dynamic) - Expr.One);
             }
             return det;
+        }
+
+        public static Matrix<T> ReducedRowEchelonForm<T>(this Matrix<T> matrix) where T : INumber<T>
+        {
+            Matrix<T> rref = new(matrix.Rows, matrix.Cols);
+            // Copy original matrix into rref.
+            for (int i = 0; i < matrix.Rows; i++)
+                for (int j = 0; j < matrix.Cols; j++)
+                    rref[i, j] = matrix[i, j];
+
+            int lead = 0;
+            int rowCount = rref.Rows;
+            int colCount = rref.Cols;
+
+            for (int r = 0; r < rowCount; r++)
+            {
+                if (colCount <= lead)
+                    break;
+
+                int i = r;
+                // Find a nonzero pivot in the current column.
+                while ((rref[i, lead] as dynamic) == T.Zero)
+                {
+                    i++;
+                    if (i == rowCount)
+                    {
+                        i = r;
+                        lead++;
+                        if (lead == colCount)
+                            return rref;
+                    }
+                }
+                // Swap row i with row r.
+                for (int k = 0; k < colCount; k++)
+                {
+                    (rref[i, k], rref[r, k]) = (rref[r, k], rref[i, k]);
+                }
+
+                // Normalize the pivot row.
+                T lv = rref[r, lead];
+                for (int k = 0; k < colCount; k++)
+                    rref[r, k] = (rref[r, k] as dynamic) / lv;
+
+                // Eliminate all other rows.
+                for (int i2 = 0; i2 < rowCount; i2++)
+                {
+                    if (i2 != r)
+                    {
+                        T lv2 = rref[i2, lead];
+                        for (int k = 0; k < colCount; k++)
+                            rref[i2, k] = (rref[i2, k] as dynamic) - lv2 * rref[r, k];
+                    }
+                }
+                lead++;
+            }
+            return rref;
+        }
+
+        public static Matrix<T> ReducedRowEchelonFormExpr<T>(this Matrix<T> matrix) where T : Expr
+        {
+            Matrix<T> rref = new(matrix.Rows, matrix.Cols);
+            // Copy original matrix into rref.
+            for (int i = 0; i < matrix.Rows; i++)
+                for (int j = 0; j < matrix.Cols; j++)
+                    rref[i, j] = matrix[i, j];
+
+            int lead = 0;
+            int rowCount = rref.Rows;
+            int colCount = rref.Cols;
+
+            for (int r = 0; r < rowCount; r++)
+            {
+                if (colCount <= lead)
+                    break;
+
+                int i = r;
+                // Find a nonzero pivot in the current column.
+                while (rref[i, lead].ToString() == Expr.Zero.ToString())
+                {
+                    i++;
+                    if (i == rowCount)
+                    {
+                        i = r;
+                        lead++;
+                        if (lead == colCount)
+                            return rref;
+                    }
+                }
+                // Swap row i with row r.
+                for (int k = 0; k < colCount; k++)
+                {
+                    (rref[i, k], rref[r, k]) = (rref[r, k], rref[i, k]);
+                }
+
+                // Normalize the pivot row.
+                T lv = rref[r, lead];
+                for (int k = 0; k < colCount; k++)
+                    rref[r, k] = (rref[r, k] as dynamic) / lv;
+
+                // Eliminate all other rows.
+                for (int i2 = 0; i2 < rowCount; i2++)
+                {
+                    if (i2 != r)
+                    {
+                        T lv2 = rref[i2, lead];
+                        for (int k = 0; k < colCount; k++)
+                            rref[i2, k] = (rref[i2, k] as dynamic) - lv2 * rref[r, k];
+                    }
+                }
+                lead++;
+            }
+            return rref;
+        }
+
+        public static List<T[]> Kernel<T>(this Matrix<T> matrix) where T : INumber<T>
+        {
+            Matrix<T> rref = matrix.ReducedRowEchelonForm();
+            int m = rref.Rows;
+            int n = rref.Cols;
+
+            // Identify pivot columns.
+            bool[] pivotColumns = new bool[n];
+            int row = 0;
+            for (int col = 0; col < n && row < m; col++)
+            {
+                // Check if there is a leading one in this column.
+                if ((rref[row, col] as dynamic) == T.One)
+                {
+                    pivotColumns[col] = true;
+                    row++;
+                }
+            }
+
+            List<int> freeColumns = [];
+            for (int col = 0; col < n; col++)
+            {
+                if (!pivotColumns[col])
+                    freeColumns.Add(col);
+            }
+
+            List<T[]> kernelBasis = [];
+            // For each free variable, create a basis vector.
+            foreach (int freeCol in freeColumns)
+            {
+                T[] vec = new T[n];
+                // Set free variable = 1.
+                vec[freeCol] = T.One;
+                // Solve for the pivot variables.
+                row = 0;
+                for (int col = 0; col < n && row < m; col++)
+                {
+                    if (pivotColumns[col])
+                    {
+                        // In RREF, the row 'row' has a leading 1 at column 'col'.
+                        // The equation is: x_col + sum_{j free} (rref[row, j] * x_j) = 0.
+                        // For our free variable vector, we set x_j = 0 except at freeCol.
+                        // Thus, x_col = -rref[row, freeCol] (if freeCol is in the row).
+                        vec[col] = (T.Zero - rref[row, freeCol] as dynamic);
+                        row++;
+                    }
+                }
+                kernelBasis.Add(vec);
+            }
+            return kernelBasis;
+        }
+    
+        public static List<T[]> KernelExpr<T>(this Matrix<T> matrix) where T : Expr
+        {
+            Matrix<T> rref = matrix.ReducedRowEchelonFormExpr();
+            int m = rref.Rows;
+            int n = rref.Cols;
+
+            // Identify pivot columns.
+            bool[] pivotColumns = new bool[n];
+            int row = 0;
+            for (int col = 0; col < n && row < m; col++)
+            {
+                // Check if there is a leading one in this column.
+                if ((rref[row, col] as dynamic).ToString() == Expr.One.ToString())
+                {
+                    pivotColumns[col] = true;
+                    row++;
+                }
+            }
+
+            List<int> freeColumns = [];
+            for (int col = 0; col < n; col++)
+            {
+                if (!pivotColumns[col])
+                    freeColumns.Add(col);
+            }
+
+            List<T[]> kernelBasis = [];
+            // For each free variable, create a basis vector.
+            foreach (int freeCol in freeColumns)
+            {
+                T[] vec = new T[n];
+                // Set free variable = 1.
+                vec[freeCol] = (T)Expr.One;
+                // Solve for the pivot variables.
+                row = 0;
+                for (int col = 0; col < n && row < m; col++)
+                {
+                    if (pivotColumns[col])
+                    {
+                        // In RREF, the row 'row' has a leading 1 at column 'col'.
+                        // The equation is: x_col + sum_{j free} (rref[row, j] * x_j) = 0.
+                        // For our free variable vector, we set x_j = 0 except at freeCol.
+                        // Thus, x_col = -rref[row, freeCol] (if freeCol is in the row).
+                        vec[col] = (Expr.Zero - rref[row, freeCol] as dynamic);
+                        row++;
+                    }
+                }
+                kernelBasis.Add(vec);
+            }
+            return kernelBasis;
+        }
+
+        public static List<T[]> ImageBasisColumns<T>(this Matrix<T> matrix) where T : INumber<T>
+        {
+            Matrix<T> rref = matrix.ReducedRowEchelonForm();
+            int m = rref.Rows;
+            int n = rref.Cols;
+            List<T[]> toReturn = [];
+
+            int row = 0;
+            for (int col = 0; col < n && row < m; col++)
+            {
+                if ((rref[row, col] as dynamic) == T.One)
+                {
+                    T[] toAdd = new T[m];
+                    for(int r = 0; r < m; r++)
+                    {
+                        toAdd[r] = rref[r, col];
+                    }
+                    toReturn.Add(toAdd);
+                    row++;
+                }
+            }
+
+            return toReturn;
+        }
+
+        public static List<T[]> ImageBasisColumnsExpr<T>(this Matrix<T> matrix) where T : Expr
+        {
+            Matrix<T> rref = matrix.ReducedRowEchelonFormExpr();
+            int m = rref.Rows;
+            int n = rref.Cols;
+            List<T[]> toReturn = [];
+
+            int row = 0;
+            for (int col = 0; col < n && row < m; col++)
+            {
+                if ((rref[row, col] as dynamic).ToString() == Expr.One.ToString())
+                {
+                    T[] toAdd = new T[m];
+                    for (int r = 0; r < m; r++)
+                    {
+                        toAdd[r] = rref[r, col];
+                    }
+                    toReturn.Add(toAdd);
+                    row++;
+                }
+            }
+
+            return toReturn;
         }
     }
 }
